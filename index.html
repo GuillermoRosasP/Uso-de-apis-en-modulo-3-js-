@@ -1,57 +1,33 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="index.css">
-    <title>Pokedex_Async/Await</title>
-<!--inicio del proyecto-->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="index.css"/>
+  <title>Pokedex_Async/Await</title>
 </head>
 
-<header>Pokédex</header>
-
-
 <body>
-     <h1>Todos los pokemon en un solo lugar</h1>
+  <header>Pokédex</header>
 
-<!-- Contenedor para pokemons -->
+  <h1>Todos los Pokémon en un solo lugar</h1>
+
+  <!-- Formulario de búsqueda -->
+  <form id="searchForm">
+    <input type="text" id="searchInput" placeholder="Nombre, tipo o habilidad" />
+    <button type="submit">Buscar</button>
+  </form>
+
+  <!-- Contenedor para pokemons -->
   <div id="pokemonContainer" class="pokemon-container"></div>
 
+  <!-- Paginación -->
+  <section id="paginacion">
+    <button id="Anterior">Anterior</button>
+    <button id="Siguiente">Siguiente</button>
+  </section>
 
-
-<!-- Paginacion -->
-    <section id="paginacion">
-        <button id="Anterior">Anterior</button>
-        <button id="Siguiente">Siguiente</button>
-    </section>
-
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <script src="index.js"></script>
-    
+  <script src="index.js"></script>
 </body>
 </html>

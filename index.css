@@ -1,47 +1,132 @@
-/*inicio del proyecto*/
-header {
-      background: linear-gradient(to right, red, blue);
-      color: white;
-      text-align: center;
-      padding: 7 rem;
-      font-size: 2.5em;
-      font-family: 'Arial', sans-serif;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
-h1{
-    text-align: center;
-    color: black;
-    
+/* 1. Definimos variables CSS para los colores de la marca */
+:root {
+  --pokemon-yellow: #FFDE00;
+  --pokemon-blue:   #0038A8;
+  --pokemon-black:  #000000;
 }
 
+/* 2. Header con los colores clásicos */
+header {
+  background: linear-gradient(to right, var(--pokemon-yellow), var(--pokemon-blue));
+  color: var(--pokemon-black);
+  text-align: center;
+  padding: 2rem;
+  font-size: 2.5em;
+  font-family: 'Arial', sans-serif;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
 
-body {
-  font-family: Arial, sans-serif;
-  background-color: #f2f2f2;
-  margin: 0;
-  padding: 20px;
+/* 3. Titulares y texto */
+h1 {
+  color: var(--pokemon-black);
+}
+
+/* 4. Botones de paginación y búsqueda */
+button {
+  background-color: var(--pokemon-yellow);
+  border: 2px solid var(--pokemon-black);
+  color: var(--pokemon-black);
+  padding: 0.5rem 1rem;
+  margin: 0 0.5rem;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+button:hover:not(:disabled) {
+  background-color: var(--pokemon-blue);
+  color: var(--pokemon-yellow);
+}
+
+/* 5. Tarjetas con borde negro y fondo blanco */
+.pokemon-card {
+  background-color: #FFFFFF;
+  border: 3px solid var(--pokemon-black);
+  border-radius: 12px;
+  padding: 15px;
+  width: 160px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   text-align: center;
 }
+.pokemon-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+}
 
+/* 6. Inputs del formulario */
+form input {
+  padding: 5px;
+  font-size: 1em;
+  border: 2px solid var(--pokemon-black);
+  border-radius: 6px;
+  width: 200px;
+}
+
+/* 7. Ajuste en el contenedor para mejor contraste */
+body {
+  background-color: #F8F8F8;
+  font-family: Arial, sans-serif;
+  text-align: center;
+  margin: 0;
+  padding: 20px;
+}
+
+/* 8. Conservamos los colores por tipo sobre el fondo blanco */
+.fire     { background-color: #f08030; }
+.water    { background-color: #6890f0; }
+.grass    { background-color: #78c850; }
+.electric { background-color: #f8d030; }
+.ice      { background-color: #98d8d8; }
+.fighting { background-color: #c03028; }
+.poison   { background-color: #a040a0; }
+.ground   { background-color: #e0c068; }
+.flying   { background-color: #a890f0; }
+.psychic  { background-color: #f85888; }
+.bug      { background-color: #a8b820; }
+.rock     { background-color: #b8a038; }
+.ghost    { background-color: #705898; }
+.dark     { background-color: #705848; }
+.dragon   { background-color: #7038f8; }
+.steel    { background-color: #b8b8d0; }
+.fairy    { background-color: #f0b6bc; }
+.normal   { background-color: #a8a878; }
+
+/* 9. Contenedor que organiza las tarjetas en filas horizontales */
 .pokemon-container {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 20px;
   margin-top: 20px;
-} 
-
-.pokemon-card {
-  background-color: white;
-  border: 2px solid #ddd;
-  border-radius: 12px;
-  padding: 15px;
-  width: 160px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-#paginacion {
-    margin-top: 30px;
-}
+/* 10. Responsive: adaptar para pantallas pequeñas */
+@media (max-width: 768px) {
+  .pokemon-card {
+    width: 100%;
+    max-width: 300px;
+  }
 
+  form input {
+    width: 90%;
+  }
+
+  button {
+    margin: 0.5rem 0;
+    width: 120px;
+  }
+
+  header {
+    font-size: 2em;
+    padding: 1.5rem;
+  }
+
+  h1 {
+    font-size: 1.3em;
+  }
+}

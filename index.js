@@ -1,84 +1,134 @@
-//console.log("hola m mundo");
+// ===============================
+// 🧠 Pokédex con detección de tipo/abilidad en la búsqueda
+// - Paso 1: Obtener Pokémon según paginación, nombre, tipo o habilidad
+// - Paso 2: Mostrar tarjetas con más información
+// - Paso 3: Colorear tarjeta por tipo principal
+// - Paso 4: Paginación y deshabilitación de botones
+// ===============================
 
-const container = document.getElementById('pokemonContainer');
+// Paso 1: Referencias al DOM
+const contenedor = document.getElementById('pokemonContainer');  // Contenedor de tarjetas
+const btnPrev   = document.getElementById('Anterior');          // Botón Anterior
+const btnNext   = document.getElementById('Siguiente');         // Botón Siguiente
+const form      = document.getElementById('searchForm');        // Formulario búsqueda
+const input     = document.getElementById('searchInput');       // Input búsqueda
 
-// Descripción: Este archivo contiene la lógica para obtener y 
-// mostrar Pokémon utilizando la API de PokeAPI.
-( async () => {
-   const limit = 20; // Número de Pokémon a obtener
-   let offset = 0; // indica con que pokemon se enpezara, y cambie en const por let para poder modificarlo con los botones 
-   const BASE_URL = 'https://pokeapi.co/api/v2/pokemon';
+// Paso 2: Variables globales
+let offset = 0;                             // Desplazamiento para paginación
+const limit = 20;                           // Pokémon por página
+const API    = 'https://pokeapi.co/api/v2'; // Base de la API
 
-   //  1) Función para obtener los Pokémon de la API
-   async function getPokemons(){
-    try{
-        const response = await fetch(`${BASE_URL}?limit=${limit}&offset=${offset}`);
-        const data = await response.json();
-        return data.results;
-    }catch(error){
-        console.error('error al obtener los pokémons', error);
-        return [];
+// Paso 3: Función central para obtener datos según contexto
+async function obtenerPokemones(query = '') {
+  // No limpiamos aún: necesitamos saber si hay datos o error
+  contenedor.innerHTML = 'Cargando…';
+
+  // Helper: intenta fetch y devuelve JSON o lanza
+  async function fetchJson(url) {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`Status ${res.status}`);
+    return res.json();
+  }
+
+  try {
+    let detalles = [];
+
+    // 3.1 Intento como tipo
+    try {
+      const dataType = await fetchJson(`${API}/type/${query.toLowerCase()}`);
+      // dataType.pokemon es un array de { pokemon: { name, url } }
+      detalles = await Promise.all(
+        dataType.pokemon.map(p => fetchJson(p.pokemon.url))
+      );
+      return detalles;
+    } catch {
+      // No era un tipo válido: seguimos
     }
-   }
 
-   // 2) Función para obtener la información de cada Pokémon
-   async function getPokemonDetails(pokemonUrl) {
-    try{
-        const response = await fetch(pokemonUrl);
-        const data = await response.json();
-        return {
-            name: data.name,
-            image: data.sprites.front_default,
-            types: data.types.map(t => t.type.name)
-        }
-    }catch(error){
-        console.error('Error al obtener los detalles del Pokémon', pokemonUrl, error);
-        return null;
+    // 3.2 Intento como habilidad
+    try {
+      const dataAbility = await fetchJson(`${API}/ability/${query.toLowerCase()}`);
+      detalles = await Promise.all(
+        dataAbility.pokemon.map(p => fetchJson(p.pokemon.url))
+      );
+      return detalles;
+    } catch {
+      // Tampoco era habilidad: seguimos
     }
-   }
 
-// 3) Orquestar ambas funciones y los resultados mostrarlos en consola 
-const list = await getPokemons();
-const details = await Promise.all(
-    list.map(pokemon => getPokemonDetails(pokemon.url) )
-)
-
-//paso 4 mostramos en html 
-details.forEach(pokemon => {
-     if (pokemon) {
-       const card = document.createElement('div');
-       card.className = 'pokemon-card';
-       card.innerHTML = `
-         <h3>${pokemon.name.toUpperCase()}</h3>
-         <img src="${pokemon.image}" alt="${pokemon.name}" />
-         <p><strong>Tipo:</strong> ${pokemon.types.join(', ')}</p>
-       `;
-       container.appendChild(card);
-     }
-   });
-
-
-//paso 5 mostramos en consola los resultados
-console.log(' ===== Haciendo llamada a la API =====');
-details.forEach(pokemon => {
-    if(pokemon){
-        console.log(`Nombre: ${pokemon.name.toUpperCase()}`);
-        console.log(`Imagen: ${pokemon.image}`);
-        console.log(`Tipos: ${pokemon.types.join(', ')}`);
-        console.log('-------------------');
+    // 3.3 Intento por nombre o paginación
+    if (query) {
+      // Nombre o ID
+      const single = await fetchJson(`${API}/pokemon/${query.toLowerCase()}`);
+      return [ single ];
+    } else {
+      // Paginación normal
+      const pageData = await fetchJson(`${API}/pokemon?limit=${limit}&offset=${offset}`);
+      detalles = await Promise.all(
+        pageData.results.map(p => fetchJson(p.url))
+      );
+      return detalles;
     }
-})
-})()
 
+  } catch (error) {
+    // Si llegamos aquí, ninguna ruta funcionó
+    console.error('Error al buscar:', error);
+    contenedor.innerHTML = `<p style="color:red;">
+      No se encontraron resultados para “${query}”
+    </p>`;
+    return null; // Indicamos fallo
+  }
+}
 
+// Paso 4: Crear una tarjeta con info extendida y color por tipo
+function crearTarjeta(pokemon) {
+  const card = document.createElement('div');                 // Creamos div
+  const tipo = pokemon.types[0].type.name;                    // Tipo principal
+  card.className = `pokemon-card ${tipo}`;                    // Clase para color
 
+  card.innerHTML = `
+    <h3>${pokemon.name.toUpperCase()}</h3>
+    <img src="${pokemon.sprites.front_default}" alt="${pokemon.name}" />
+    <p><strong>Tipo:</strong> ${pokemon.types.map(t => t.type.name).join(', ')}</p>
+    <p><strong>Altura:</strong> ${pokemon.height}</p>
+    <p><strong>Peso:</strong> ${pokemon.weight}</p>
+    <p><strong>Habilidades:</strong> ${pokemon.abilities.map(h => h.ability.name).join(', ')}</p>
+  `;
+  contenedor.appendChild(card);                                // Insertamos en DOM
+}
 
+// Paso 5: Mostrar lista de Pokémon y controlar botones
+async function mostrarPokemones(query = '') {
+  const lista = await obtenerPokemones(query);               // Obtenemos datos
+  if (!Array.isArray(lista)) return;                         // Si hubo error, salimos
 
+  contenedor.innerHTML = '';                                 // Limpiamos contenedor
+  lista.forEach(p => crearTarjeta(p));                       // Renderizamos tarjetas
 
+  // Deshabilitar botones solo en modo paginación
+  btnPrev.disabled  = offset === 0;
+  btnNext.disabled  = lista.length < limit; // Si recibes menos de limit, ya no hay más
+}
 
+// Paso 6: Eventos paginación
+btnPrev.addEventListener('click', () => {
+  if (offset >= limit) {
+    offset -= limit;
+    mostrarPokemones();
+  }
+});
+btnNext.addEventListener('click', () => {
+  offset += limit;
+  mostrarPokemones();
+});
 
-// let CurrentPage = 1; // Página actual
-   // const limit = 20; // Número de Pokémon por página
-   // pagNum = 1
+// Paso 7: Evento búsqueda avanzada
+form.addEventListener('submit', e => {
+  e.preventDefault();
+  const txt = input.value.trim();
+  if (!txt) return mostrarPokemones();                      // Vacío = volver a paginar
+  mostrarPokemones(txt);                                    // Buscamos nombre, tipo o habilidad
+});
 
-   // en el html <button>prev</button> <button>next</button>
+// Paso 8: Carga inicial
+mostrarPokemones();
